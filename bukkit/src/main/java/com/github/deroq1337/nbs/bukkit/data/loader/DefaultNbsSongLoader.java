@@ -4,8 +4,8 @@ import com.github.deroq1337.nbs.api.NbsSong;
 import com.github.deroq1337.nbs.api.NbsSongLoader;
 import com.github.deroq1337.nbs.api.NbsSongNote;
 import com.github.deroq1337.nbs.bukkit.data.models.NbsSongInstrument;
-import com.github.deroq1337.nbs.bukkit.exceptions.NbsLoadException;
-import com.github.deroq1337.nbs.bukkit.exceptions.OutdatedNbsException;
+import com.github.deroq1337.nbs.bukkit.data.exceptions.NbsLoadException;
+import com.github.deroq1337.nbs.bukkit.data.exceptions.OutdatedNbsException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -93,19 +93,18 @@ public class DefaultNbsSongLoader implements NbsSongLoader {
                         }
 
                         layer += jumpToNextLayer;
-
                         byte instrumentId = inputStream.readByte();
+                        byte key = inputStream.readByte();
+                        byte velocity = inputStream.readByte();
+                        int panning = Byte.toUnsignedInt(inputStream.readByte());
+                        short pitch = inputStream.readNbsShort();
+
                         if (NbsSongInstrument.getInstrumentById(instrumentId).isEmpty()) {
-                            continue; // skip custom instrument
+                            System.out.println("Instrument with id '" + instrumentId + "' was not found. Might be a custom instrument.");
+                            continue;
                         }
 
-                        NbsSongNote note = new NbsSongNote(
-                                instrumentId,
-                                inputStream.readByte(),
-                                inputStream.readByte(),
-                                inputStream.readByte(),
-                                inputStream.readNbsShort()
-                        );
+                        NbsSongNote note = new NbsSongNote(instrumentId, key, velocity, panning, pitch);
                         song.addNote(layer, tick, note);
                     }
                 }
