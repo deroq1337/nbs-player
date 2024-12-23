@@ -3,7 +3,7 @@ package com.github.deroq1337.nbs.bukkit.data.loader;
 import com.github.deroq1337.nbs.api.NbsSong;
 import com.github.deroq1337.nbs.api.NbsSongLoader;
 import com.github.deroq1337.nbs.api.NbsSongNote;
-import com.github.deroq1337.nbs.bukkit.data.models.NbsSongInstrument;
+import com.github.deroq1337.nbs.bukkit.data.models.BukkitNbsSongInstrument;
 import com.github.deroq1337.nbs.bukkit.data.exceptions.NbsLoadException;
 import com.github.deroq1337.nbs.bukkit.data.exceptions.OutdatedNbsException;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +13,7 @@ import java.io.FileInputStream;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-public class DefaultNbsSongLoader implements NbsSongLoader {
+public class BukkitNbsSongLoader implements NbsSongLoader {
 
     @Override
     public @NotNull CompletableFuture<List<NbsSong>> loadSongs(@NotNull String path) {
@@ -99,7 +99,7 @@ public class DefaultNbsSongLoader implements NbsSongLoader {
                         int panning = Byte.toUnsignedInt(inputStream.readByte());
                         short pitch = inputStream.readNbsShort();
 
-                        if (NbsSongInstrument.getInstrumentById(instrumentId).isEmpty()) {
+                        if (BukkitNbsSongInstrument.getInstrumentById(instrumentId).isEmpty()) {
                             continue;
                         }
 

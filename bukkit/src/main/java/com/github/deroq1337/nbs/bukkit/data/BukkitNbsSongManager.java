@@ -3,21 +3,21 @@ package com.github.deroq1337.nbs.bukkit.data;
 import com.github.deroq1337.nbs.api.NbsSong;
 import com.github.deroq1337.nbs.api.NbsSongLoader;
 import com.github.deroq1337.nbs.api.NbsSongManager;
-import com.github.deroq1337.nbs.bukkit.data.loader.DefaultNbsSongLoader;
+import com.github.deroq1337.nbs.bukkit.data.loader.BukkitNbsSongLoader;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-public class DefaultNbsSongManager implements NbsSongManager {
+public class BukkitNbsSongManager implements NbsSongManager {
 
     private static final String SONGS_PATH = "plugins/nbs/songs/";
 
     private final @NotNull NbsSongLoader songLoader;
     private final @NotNull Map<String, NbsSong> songsMap = new HashMap<>();
 
-    public DefaultNbsSongManager() {
-        this.songLoader = new DefaultNbsSongLoader();
+    public BukkitNbsSongManager() {
+        this.songLoader = new BukkitNbsSongLoader();
     }
 
     @Override

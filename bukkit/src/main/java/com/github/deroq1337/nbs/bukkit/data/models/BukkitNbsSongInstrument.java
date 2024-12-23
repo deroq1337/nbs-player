@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Getter
-public enum NbsSongInstrument {
+public enum BukkitNbsSongInstrument {
 
     PIANO(0, Sound.BLOCK_NOTE_BLOCK_HARP),
     DOUBLE_BASS(1, Sound.BLOCK_NOTE_BLOCK_BASEDRUM),
@@ -32,7 +32,7 @@ public enum NbsSongInstrument {
     private final int id;
     private final @NotNull Sound sound;
 
-    public static Optional<NbsSongInstrument> getInstrumentById(int id) {
+    public static Optional<BukkitNbsSongInstrument> getInstrumentById(int id) {
         return Arrays.stream(values())
                 .filter(instrument -> instrument.id == id)
                 .findFirst();
