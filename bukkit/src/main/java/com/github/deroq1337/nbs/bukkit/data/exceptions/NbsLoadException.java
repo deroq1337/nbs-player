@@ -1,4 +1,4 @@
-package com.github.deroq1337.nbs.bukkit.exceptions;
+package com.github.deroq1337.nbs.bukkit.data.exceptions;
 
 import org.jetbrains.annotations.NotNull;
 

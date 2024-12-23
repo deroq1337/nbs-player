@@ -100,7 +100,6 @@ public class DefaultNbsSongLoader implements NbsSongLoader {
                         short pitch = inputStream.readNbsShort();
 
                         if (NbsSongInstrument.getInstrumentById(instrumentId).isEmpty()) {
-                            System.out.println("Instrument with id '" + instrumentId + "' was not found. Might be a custom instrument.");
                             continue;
                         }
 

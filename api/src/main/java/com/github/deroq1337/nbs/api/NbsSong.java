@@ -81,8 +81,12 @@ public record NbsSong(
         return (length / tempo);
     }
 
-    public boolean isInfiniteLooping() {
+    public boolean infiniteLooping() {
         return looping && maxLoopCount == 0;
+    }
+
+    public int actualTempo() {
+        return (tempo / 100);
     }
 
     public void addNote(int layer, int tick, @NotNull NbsSongNote note) {
