@@ -1,7 +1,9 @@
 package com.github.deroq1337.nbs.api;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents a song in the NBS (Note Block Studio) format.
@@ -48,8 +50,9 @@ import org.jetbrains.annotations.Nullable;
  *                                Any other value specifies the number of times the song will loop.
  * @param loopStartTick           The tick position where the song loop starts. The song will loop back to this tick
  *                                after reaching the maximum number of loops or the end of the song.
+ * @param layers                  // TODO: doc
  */
-public record Song(
+public record NbsSong(
         int nbsVersion,
         int vanillaInstrumentCount,
         short length,
@@ -70,7 +73,8 @@ public record Song(
         @NotNull String importFileName,
         boolean looping,
         int maxLoopCount,
-        short loopStartTick
+        short loopStartTick,
+        @NotNull Map<Integer, NbsSongLayer> layers
 ) {
 
     public int lengthInSeconds() {
@@ -79,5 +83,15 @@ public record Song(
 
     public boolean isInfiniteLooping() {
         return looping && maxLoopCount == 0;
+    }
+
+    public void addNote(int layer, int tick, @NotNull NbsSongNote note) {
+        NbsSongLayer songLayer = layers.get(layer);
+        if (songLayer == null) {
+            songLayer = new NbsSongLayer(new HashMap<>());
+            layers.put(layer, songLayer);
+        }
+
+        songLayer.notes().put(tick, note);
     }
 }
