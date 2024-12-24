@@ -14,6 +14,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -22,14 +24,13 @@ public class BukkitNbsSongSession implements NbsSongSession {
 
     private final @NotNull BukkitNbsSongPlugin plugin;
     private final @NotNull NbsSong song;
-    private final @NotNull NbsUser user;
+    private final @NotNull NbsUser owner;
+    private final List<NbsUser> listeningUsers = new ArrayList<>();
     private final Optional<Location> location;
 
     private Optional<BukkitTask> task;
     private boolean playing;
-
-    @Setter
-    private int currentTick;
+    @Setter private int currentTick;
 
     @Override
     public void play() {
@@ -42,7 +43,7 @@ public class BukkitNbsSongSession implements NbsSongSession {
             }
 
             song.layers().forEach((layerIndex, layer) -> {
-                Optional.ofNullable(layer.notes().get(currentTick)).ifPresent(note -> playNote(note));
+                Optional.ofNullable(layer.notes().get(currentTick)).ifPresent(this::playNote);
             });
             currentTick++;
         }, 0L, tickDurationMillis / 50L));
@@ -69,15 +70,27 @@ public class BukkitNbsSongSession implements NbsSongSession {
         return task.isPresent();
     }
 
-    private void playNote(@NotNull NbsSongNote note) {
-        getPlayer().ifPresentOrElse(player -> {
-            BukkitNbsSongInstrument.getInstrumentById(note.instrumentId()).ifPresent(instrument -> {
-                player.playSound(location.orElse(player.getLocation()), instrument.getSound(), 1.0f, note.actualPitch());
-            });
-        }, this::stop);
+    @Override
+    public void addListeningUser(@NotNull NbsUser user) {
+        listeningUsers.add(user);
     }
 
-    private Optional<Player> getPlayer() {
+    @Override
+    public void removeListeningUser(@NotNull NbsUser user) {
+        listeningUsers.remove(user);
+    }
+
+    private void playNote(@NotNull NbsSongNote note) {
+        getListeningUsers().forEach(user -> {
+            getPlayer(user).ifPresent(player -> {
+                BukkitNbsSongInstrument.getInstrumentById(note.instrumentId()).ifPresent(instrument -> {
+                    player.playSound(location.orElse(player.getLocation()), instrument.getSound(), 1.0f, note.actualPitch());
+                });
+            });
+        });
+    }
+
+    private Optional<Player> getPlayer(@NotNull NbsUser user) {
         return Optional.ofNullable(Bukkit.getPlayer(user.getUuid()));
     }
 }

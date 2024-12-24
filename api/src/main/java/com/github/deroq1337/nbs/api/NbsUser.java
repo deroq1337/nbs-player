@@ -9,11 +9,13 @@ public interface NbsUser {
 
     @NotNull UUID getUuid();
 
-    void startSongSession(@NotNull NbsSongSession songSession);
-
     void startSongSession(@NotNull NbsSong song);
 
-    void stopSongSession();
+    void joinSongSession(@NotNull NbsSongSession songSession);
+
+    void leaveSongSession();
 
     Optional<NbsSongSession> getSongSession();
+
+    void sendMessage(@NotNull String message);
 }
