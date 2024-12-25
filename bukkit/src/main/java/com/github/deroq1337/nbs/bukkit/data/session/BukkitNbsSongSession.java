@@ -5,6 +5,9 @@ import com.github.deroq1337.nbs.api.NbsSongNote;
 import com.github.deroq1337.nbs.api.NbsSongSession;
 import com.github.deroq1337.nbs.api.NbsUser;
 import com.github.deroq1337.nbs.bukkit.BukkitNbsSongPlugin;
+import com.github.deroq1337.nbs.bukkit.data.events.NbsSessionDisbandEvent;
+import com.github.deroq1337.nbs.bukkit.data.events.NbsSongOverEvent;
+import com.github.deroq1337.nbs.bukkit.data.events.NbsSongPlayEvent;
 import com.github.deroq1337.nbs.bukkit.data.models.BukkitNbsNotePitch;
 import com.github.deroq1337.nbs.bukkit.data.models.BukkitNbsSongInstrument;
 import lombok.Getter;
@@ -51,6 +54,7 @@ public class BukkitNbsSongSession implements NbsSongSession {
     public void play() {
         currentSong.ifPresent(song -> {
             this.playing = true;
+            Bukkit.getPluginManager().callEvent(new NbsSongPlayEvent(this, song));
 
             this.task = Optional.of(new BukkitRunnable() {
                 @Override
@@ -60,6 +64,8 @@ public class BukkitNbsSongSession implements NbsSongSession {
                     }
 
                     if (currentTick > song.length()) {
+                        Bukkit.getPluginManager().callEvent(new NbsSongOverEvent(BukkitNbsSongSession.this, song));
+
                         cancel();
                         stop();
                         return;
@@ -85,6 +91,8 @@ public class BukkitNbsSongSession implements NbsSongSession {
 
     @Override
     public void disband() {
+        Bukkit.getPluginManager().callEvent(new NbsSessionDisbandEvent(this));
+
         stop();
         listeningUsers.stream()
                 .filter(user -> !user.equals(owner))

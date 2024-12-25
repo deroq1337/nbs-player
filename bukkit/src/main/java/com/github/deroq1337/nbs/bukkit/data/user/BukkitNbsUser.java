@@ -4,10 +4,13 @@ import com.github.deroq1337.nbs.api.NbsSong;
 import com.github.deroq1337.nbs.api.NbsSongSession;
 import com.github.deroq1337.nbs.api.NbsUser;
 import com.github.deroq1337.nbs.bukkit.BukkitNbsSongPlugin;
+import com.github.deroq1337.nbs.bukkit.data.events.NbsSessionLeaveEvent;
+import com.github.deroq1337.nbs.bukkit.data.events.NbsSessionStartEvent;
 import com.github.deroq1337.nbs.bukkit.data.session.BukkitNbsSongSession;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -40,11 +43,17 @@ public class BukkitNbsUser implements NbsUser {
         NbsSongSession session = new BukkitNbsSongSession(plugin, this, song);
         joinSongSession(session);
         session.play();
+
+        Bukkit.getPluginManager().callEvent(new NbsSessionStartEvent(this, session, song));
     }
 
     @Override
     public void leaveSongSession() {
-        songSession.ifPresent(session -> session.leave(this));
+        songSession.ifPresent(session -> {
+            Bukkit.getPluginManager().callEvent(new NbsSessionLeaveEvent(this, session));
+            session.leave(this);
+        });
         this.songSession = Optional.empty();
+
     }
 }
