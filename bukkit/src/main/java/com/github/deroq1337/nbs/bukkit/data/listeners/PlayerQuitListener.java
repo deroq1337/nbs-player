@@ -1,5 +1,6 @@
 package com.github.deroq1337.nbs.bukkit.data.listeners;
 
+import com.github.deroq1337.nbs.api.NbsUser;
 import com.github.deroq1337.nbs.bukkit.BukkitNbsSongPlugin;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,6 +18,7 @@ public class PlayerQuitListener implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
+        plugin.getUserRegistry().getUser(event.getPlayer().getUniqueId()).ifPresent(NbsUser::leaveSongSession);
         plugin.getUserRegistry().removeUser(event.getPlayer().getUniqueId());
     }
 }

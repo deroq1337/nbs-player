@@ -4,7 +4,7 @@ import com.github.deroq1337.nbs.api.NbsSong;
 import com.github.deroq1337.nbs.api.NbsSongSession;
 import com.github.deroq1337.nbs.api.NbsUser;
 import com.github.deroq1337.nbs.bukkit.BukkitNbsSongPlugin;
-import com.github.deroq1337.nbs.bukkit.data.models.BukkitNbsSongSession;
+import com.github.deroq1337.nbs.bukkit.data.session.BukkitNbsSongSession;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -26,19 +26,25 @@ public class BukkitNbsUser implements NbsUser {
     }
 
     @Override
-    public void startSongSession(@NotNull NbsSongSession songSession) {
+    public void joinSongSession(@NotNull NbsSongSession songSession) {
+        if (this.songSession.isPresent()) {
+            leaveSongSession();
+        }
+
         this.songSession = Optional.of(songSession);
-        songSession.play();
+        songSession.join(this);
     }
 
     @Override
     public void startSongSession(@NotNull NbsSong song) {
-        startSongSession(new BukkitNbsSongSession(plugin, song, this, Optional.empty()));
+        NbsSongSession session = new BukkitNbsSongSession(plugin, this, song);
+        joinSongSession(session);
+        session.play();
     }
 
     @Override
-    public void stopSongSession() {
-        songSession.ifPresent(NbsSongSession::stop);
+    public void leaveSongSession() {
+        songSession.ifPresent(session -> session.leave(this));
         this.songSession = Optional.empty();
     }
 }

@@ -25,7 +25,7 @@ public class BukkitNbsSongManager implements NbsSongManager {
         return songLoader.loadSongs(SONGS_PATH).thenAccept(songs -> {
             synchronized (songsMap) {
                 songsMap.clear();
-                songs.forEach(song -> songsMap.put(song.name(), song));
+                songs.forEach(song -> songsMap.put(song.name().toLowerCase(), song));
             }
         });
     }
@@ -39,7 +39,7 @@ public class BukkitNbsSongManager implements NbsSongManager {
 
     @Override
     public Optional<NbsSong> getSongByName(@NotNull String name) {
-        return Optional.ofNullable(songsMap.get(name));
+        return Optional.ofNullable(songsMap.get(name.toLowerCase()));
     }
 
     @Override

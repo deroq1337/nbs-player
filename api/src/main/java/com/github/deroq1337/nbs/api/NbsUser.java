@@ -16,6 +16,4 @@ public interface NbsUser {
     void leaveSongSession();
 
     Optional<NbsSongSession> getSongSession();
-
-    void sendMessage(@NotNull String message);
 }

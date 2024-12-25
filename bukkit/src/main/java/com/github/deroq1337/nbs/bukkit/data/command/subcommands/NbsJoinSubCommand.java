@@ -16,32 +16,36 @@ public class NbsJoinSubCommand extends NbsSubCommand {
     }
 
     @Override
-    protected void execute(@NotNull NbsUser user, @NotNull String[] args) {
+    protected void execute(@NotNull Player player, @NotNull NbsUser user, @NotNull String[] args) {
         if (args.length < 1) {
-            user.sendMessage("§c/nbs join <user>");
+            player.sendMessage("§c/nbs join <user>");
             return;
         }
 
         Player targetPlayer = Bukkit.getPlayer(args[0]);
         if (targetPlayer == null || !targetPlayer.isOnline()) {
-            user.sendMessage("§cDieser Spieler ist nicht online");
+            player.sendMessage("§cDieser Spieler ist nicht online");
+            return;
+        }
+
+        if (targetPlayer.equals(player)) {
+            player.sendMessage("§cDu kannst deiner eigenen Session nicht beitreten");
             return;
         }
 
         Optional<NbsUser> optionalTargetUser = plugin.getUserRegistry().getUser(targetPlayer.getUniqueId());
         if (optionalTargetUser.isEmpty()) {
-            user.sendMessage("§cDieser Spieler ist nicht online");
+            player.sendMessage("§cDieser Spieler ist nicht online");
             return;
         }
 
         NbsUser targetUser = optionalTargetUser.get();
         if (targetUser.getSongSession().isEmpty()) {
-            user.sendMessage("§cDieser Spieler hat keine Session");
+            player.sendMessage("§cDieser Spieler hat keine Session");
             return;
         }
 
-        user.leaveSongSession();
         user.joinSongSession(targetUser.getSongSession().get());
-        user.sendMessage("§aDu bist der Session von " + targetPlayer.getName() + " beigetreten");
+        player.sendMessage("§aDu bist der Session von " + targetPlayer.getName() + " beigetreten");
     }
 }

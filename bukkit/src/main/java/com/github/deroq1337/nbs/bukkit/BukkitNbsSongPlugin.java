@@ -2,6 +2,7 @@ package com.github.deroq1337.nbs.bukkit;
 
 import com.github.deroq1337.nbs.api.NbsSongManager;
 import com.github.deroq1337.nbs.bukkit.data.BukkitNbsSongManager;
+import com.github.deroq1337.nbs.bukkit.data.command.NbsCommand;
 import com.github.deroq1337.nbs.bukkit.data.listeners.PlayerJoinListener;
 import com.github.deroq1337.nbs.bukkit.data.listeners.PlayerQuitListener;
 import com.github.deroq1337.nbs.bukkit.data.user.BukkitNbsUserRegistry;
@@ -23,6 +24,8 @@ public class BukkitNbsSongPlugin extends JavaPlugin {
 
         new PlayerJoinListener(this);
         new PlayerQuitListener(this);
+
+        new NbsCommand(this);
     }
 
     @Override

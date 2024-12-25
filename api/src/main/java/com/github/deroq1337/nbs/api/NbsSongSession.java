@@ -2,7 +2,8 @@ package com.github.deroq1337.nbs.api;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 public interface NbsSongSession {
 
@@ -10,25 +11,33 @@ public interface NbsSongSession {
 
     void stop();
 
+    void disband();
+
     void pause();
 
     void resume();
 
-    boolean isPlaying();
+    void join(@NotNull NbsUser user);
 
-    boolean hasStarted();
+    void leave(@NotNull NbsUser user);
 
-    int getCurrentTick();
+    void setCurrentSong(@NotNull NbsSong song);
 
     void setCurrentTick(int tick);
 
-    @NotNull NbsSong getSong();
-
     @NotNull NbsUser getOwner();
 
-    void addListeningUser(@NotNull NbsUser user);
+    Optional<NbsSong> getCurrentSong();
 
-    void removeListeningUser(@NotNull NbsUser user);
+    @NotNull Set<NbsUser> getListeningUsers();
 
-    @NotNull List<NbsUser> getListeningUsers();
+    boolean isOwner(@NotNull NbsUser user);
+
+    boolean isCurrentSong(@NotNull NbsSong song);
+
+    boolean hasStarted();
+
+    boolean isPlaying();
+
+    int getCurrentTick();
 }
