@@ -5,6 +5,7 @@ import com.github.deroq1337.nbs.api.NbsSongNote;
 import com.github.deroq1337.nbs.api.NbsSongSession;
 import com.github.deroq1337.nbs.api.NbsUser;
 import com.github.deroq1337.nbs.bukkit.BukkitNbsSongPlugin;
+import com.github.deroq1337.nbs.bukkit.data.models.BukkitNbsNotePitch;
 import com.github.deroq1337.nbs.bukkit.data.models.BukkitNbsSongInstrument;
 import lombok.Getter;
 import lombok.Setter;
@@ -69,7 +70,7 @@ public class BukkitNbsSongSession implements NbsSongSession {
                     });
                     currentTick++;
                 }
-            }.runTaskTimer(plugin, 0L, getTickDurationMillis(song) / 50L));
+            }.runTaskTimer(plugin, 0L, Math.round((float) 20L / song.actualTempo())));
         });
     }
 
@@ -146,7 +147,7 @@ public class BukkitNbsSongSession implements NbsSongSession {
         getListeningUsers().forEach(user -> {
             getPlayer(user).ifPresent(player -> {
                 BukkitNbsSongInstrument.getInstrumentById(note.instrumentId()).ifPresent(instrument -> {
-                    player.playSound(location.orElse(player.getLocation()), instrument.getSound(), 1.0f, note.actualPitch());
+                    player.playSound(location.orElse(player.getLocation()), instrument.getSound(), 1.0f, BukkitNbsNotePitch.getPitch(note.key() - 33));
                 });
             });
         });
@@ -154,9 +155,5 @@ public class BukkitNbsSongSession implements NbsSongSession {
 
     private Optional<Player> getPlayer(@NotNull NbsUser user) {
         return Optional.ofNullable(Bukkit.getPlayer(user.getUuid()));
-    }
-
-    private long getTickDurationMillis(@NotNull NbsSong song) {
-        return (1000 / song.actualTempo());
     }
 }
