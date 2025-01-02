@@ -1,9 +1,0 @@
-name: NoteBlockSongs
-version: 1.0
-api-version: 1.21
-author: deroq
-main: com.github.deroq1337.nbs.bukkit.BukkitNbsSongPlugin
-commands:
-  nbs:
-    usage: "/nbs <subcommand>"
-    aliases: ["noteblocksong"]
