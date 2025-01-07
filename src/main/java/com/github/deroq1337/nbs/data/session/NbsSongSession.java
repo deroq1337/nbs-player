@@ -27,7 +27,7 @@ public class NbsSongSession {
     private final @NotNull NbsUser owner;
     private Optional<NbsSong> currentSong;
     private final Optional<Location> location;
-    private final Set<NbsUser> listeningUsers;
+    private final @NotNull Set<NbsUser> listeningUsers;
 
     private Optional<BukkitTask> task;
     private boolean playing;
