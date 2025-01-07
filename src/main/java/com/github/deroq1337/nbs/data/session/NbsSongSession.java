@@ -55,7 +55,7 @@ public class NbsSongSession {
             Bukkit.getPluginManager().callEvent(new NbsSongPlayEvent(this, song));
 
             this.task = Optional.of(new BukkitRunnable() {
-            
+                @Override
                 public void run() {
                     if (!playing) {
                         return;
