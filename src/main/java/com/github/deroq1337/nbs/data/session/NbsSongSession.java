@@ -80,10 +80,11 @@ public class NbsSongSession {
 
     public void stop() {
         task.ifPresent(BukkitTask::cancel);
+
+        this.currentSong = Optional.empty();
         this.task = Optional.empty();
         this.playing = false;
         this.currentTick = 0;
-        this.currentSong = Optional.empty();
     }
 
     public void disband() {
