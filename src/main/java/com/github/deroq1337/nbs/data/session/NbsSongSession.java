@@ -25,11 +25,11 @@ public class NbsSongSession {
 
     private final @NotNull NbsSongPlugin plugin;
     private final @NotNull NbsUser owner;
-    private Optional<NbsSong> currentSong;
-    private final Optional<Location> location;
     private final @NotNull Set<NbsUser> listeningUsers;
+    private final Optional<Location> location;
 
     private Optional<BukkitTask> task;
+    private Optional<NbsSong> currentSong;
     private boolean playing;
 
     @Setter
