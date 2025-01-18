@@ -17,7 +17,7 @@ public class NbsUserRegistry {
     private final @NotNull Map<UUID, NbsUser> userMap = new ConcurrentHashMap<>();
 
     public void addUser(@NotNull UUID uuid) {
-        userMap.put(uuid, NbsUser.create(plugin, uuid));
+        userMap.put(uuid, new NbsUser(plugin, uuid));
     }
 
     public void removeUser(@NotNull UUID uuid) {

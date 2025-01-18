@@ -13,7 +13,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
@@ -28,8 +27,8 @@ public class NbsSongSession {
     private final @NotNull Set<NbsUser> listeningUsers;
     private final Optional<Location> location;
 
-    private Optional<BukkitTask> task;
-    private Optional<NbsSong> currentSong;
+    private Optional<BukkitTask> task = Optional.empty();
+    private Optional<NbsSong> currentSong = Optional.empty();
     private boolean playing;
 
     @Setter
@@ -69,9 +68,8 @@ public class NbsSongSession {
                         return;
                     }
 
-                    song.layers().forEach((layerIndex, layer) -> {
-                        Optional.ofNullable(layer.notes().get(currentTick)).ifPresent(note -> playNote(note));
-                    });
+                    song.layers().forEach((layerIndex, layer) ->
+                            Optional.ofNullable(layer.notes().get(currentTick)).ifPresent(note -> playNote(note)));
                     currentTick++;
                 }
             }.runTaskTimer(plugin, 0L, Math.round((float) 20L / song.actualTempo())));
@@ -141,16 +139,8 @@ public class NbsSongSession {
     }
 
     private void playNote(@NotNull NbsSongNote note) {
-        getListeningUsers().forEach(user -> {
-            getPlayer(user).ifPresent(player -> {
-                NbsSongInstrument.getInstrumentById(note.instrumentId()).ifPresent(instrument -> {
-                    player.playSound(location.orElse(player.getLocation()), instrument.getSound(), 1.0f, NbsNotePitch.getPitch(note.key() - 33));
-                });
-            });
-        });
-    }
-
-    private Optional<Player> getPlayer(@NotNull NbsUser user) {
-        return Optional.ofNullable(Bukkit.getPlayer(user.getUuid()));
+        getListeningUsers().forEach(user -> user.getBukkitPlayer().ifPresent(player ->
+                NbsSongInstrument.getInstrumentById(note.instrumentId()).ifPresent(instrument ->
+                        player.playSound(location.orElse(player.getLocation()), instrument.getSound(), 1.0f, NbsNotePitch.getPitch(note.key() - 33)))));
     }
 }

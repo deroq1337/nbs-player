@@ -9,30 +9,28 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.UUID;
 
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor
 @Getter
 public class NbsUser {
 
     private final @NotNull NbsSongPlugin plugin;
     private final @NotNull UUID uuid;
+
     private Optional<NbsSongSession> songSession = Optional.empty();
 
-    public static @NotNull NbsUser create(@NotNull NbsSongPlugin plugin, @NotNull UUID uuid) {
-        return new NbsUser(plugin, uuid);
-    }
-
-    public void joinSongSession(@NotNull NbsSongSession songSession) {
-        if (this.songSession.isPresent()) {
+    public void joinSongSession(@NotNull NbsSongSession session) {
+        if (songSession.isPresent()) {
             leaveSongSession();
         }
 
-        this.songSession = Optional.of(songSession);
-        songSession.join(this);
+        this.songSession = Optional.of(session);
+        session.join(this);
     }
 
     public void startSongSession(@NotNull NbsSong song) {
@@ -49,6 +47,9 @@ public class NbsUser {
             session.leave(this);
         });
         this.songSession = Optional.empty();
+    }
 
+    public Optional<Player> getBukkitPlayer() {
+        return Optional.ofNullable(Bukkit.getPlayer(uuid));
     }
 }
