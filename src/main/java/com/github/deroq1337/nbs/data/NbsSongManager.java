@@ -4,24 +4,20 @@ import com.github.deroq1337.nbs.data.loader.NbsSongLoader;
 import com.github.deroq1337.nbs.data.models.NbsSong;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class NbsSongManager {
 
-    private static final String SONGS_PATH = "plugins/nbs/songs/";
-
-    private final @NotNull NbsSongLoader songLoader;
-    private final @NotNull Map<String, NbsSong> songsMap = new HashMap<>();
-
-    public NbsSongManager() {
-        this.songLoader = new com.github.deroq1337.nbs.data.loader.NbsSongLoader();
-    }
+    private final @NotNull NbsSongLoader songLoader = new NbsSongLoader(new File("plugins/nbs/songs/"));
+    private final @NotNull Map<String, NbsSong> songsMap = new ConcurrentHashMap<>();
 
     public @NotNull CompletableFuture<Void> loadSongs() {
-        return songLoader.loadSongs(SONGS_PATH).thenAccept(songs -> {
+        return songLoader.loadSongs().thenAccept(songs -> {
             synchronized (songsMap) {
-                songsMap.clear();
+                songsMap.clear();;
                 songs.forEach(song -> songsMap.put(song.name().toLowerCase(), song));
             }
         });

@@ -5,6 +5,7 @@ import com.github.deroq1337.nbs.data.exceptions.OutdatedNbsException;
 import com.github.deroq1337.nbs.data.models.NbsSong;
 import com.github.deroq1337.nbs.data.models.NbsSongInstrument;
 import com.github.deroq1337.nbs.data.models.NbsSongNote;
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -12,19 +13,21 @@ import java.io.FileInputStream;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
+@RequiredArgsConstructor
 public class NbsSongLoader {
 
-    public @NotNull CompletableFuture<List<NbsSong>> loadSongs(@NotNull String path) {
-        if (path.isEmpty()) {
-            throw new NbsLoadException("Path is empty");
+    private final @NotNull File songsDirectory;
+
+    public @NotNull CompletableFuture<List<NbsSong>> loadSongs() {
+        if (!songsDirectory.exists()) {
+            songsDirectory.mkdirs();
         }
 
-        File directory = new File(path);
-        if (!directory.exists() || !directory.isDirectory()) {
-            throw new NbsLoadException("Path '" + path + "' is no directory");
+        if (!songsDirectory.isDirectory()) {
+            throw new NbsLoadException("Directory '" + songsDirectory + "' is no directory");
         }
 
-        List<CompletableFuture<Optional<NbsSong>>> futures = Arrays.stream(directory.listFiles())
+        List<CompletableFuture<Optional<NbsSong>>> futures = Arrays.stream(songsDirectory.listFiles())
                 .filter(file -> file != null && !file.isDirectory() && file.getName().endsWith(".nbs"))
                 .map(this::loadSong)
                 .toList();

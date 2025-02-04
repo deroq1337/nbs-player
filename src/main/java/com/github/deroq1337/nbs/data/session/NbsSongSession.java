@@ -2,18 +2,14 @@ package com.github.deroq1337.nbs.data.session;
 
 import com.github.deroq1337.nbs.NbsSongPlugin;
 import com.github.deroq1337.nbs.data.events.NbsSessionDisbandEvent;
-import com.github.deroq1337.nbs.data.events.NbsSongOverEvent;
 import com.github.deroq1337.nbs.data.events.NbsSongPlayEvent;
-import com.github.deroq1337.nbs.data.models.NbsNotePitch;
 import com.github.deroq1337.nbs.data.models.NbsSong;
-import com.github.deroq1337.nbs.data.models.NbsSongInstrument;
-import com.github.deroq1337.nbs.data.models.NbsSongNote;
+import com.github.deroq1337.nbs.data.tasks.NbsSongTask;
 import com.github.deroq1337.nbs.data.user.NbsUser;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,8 +36,6 @@ public class NbsSongSession {
         this.owner = owner;
         this.location = location;
         this.listeningUsers = new HashSet<>();
-
-        join(owner);
     }
 
     public NbsSongSession(@NotNull NbsSongPlugin plugin, @NotNull NbsUser owner, @NotNull NbsSong song) {
@@ -51,28 +45,9 @@ public class NbsSongSession {
     public void play() {
         currentSong.ifPresent(song -> {
             this.playing = true;
-            Bukkit.getPluginManager().callEvent(new NbsSongPlayEvent(this, song));
+            Bukkit.getPluginManager().callEvent(new NbsSongPlayEvent(NbsSongSession.this, song));
 
-            this.task = Optional.of(new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (!playing) {
-                        return;
-                    }
-
-                    if (currentTick > song.length()) {
-                        Bukkit.getPluginManager().callEvent(new NbsSongOverEvent(NbsSongSession.this, song));
-
-                        cancel();
-                        stop();
-                        return;
-                    }
-
-                    song.layers().forEach((layerIndex, layer) ->
-                            Optional.ofNullable(layer.notes().get(currentTick)).ifPresent(note -> playNote(note)));
-                    currentTick++;
-                }
-            }.runTaskTimer(plugin, 0L, Math.round((float) 20L / song.actualTempo())));
+            this.task = Optional.of(new NbsSongTask(plugin, NbsSongSession.this, song).start());
         });
     }
 
@@ -89,9 +64,7 @@ public class NbsSongSession {
         Bukkit.getPluginManager().callEvent(new NbsSessionDisbandEvent(this));
 
         stop();
-        listeningUsers.stream()
-                .filter(user -> !user.equals(owner))
-                .forEach(NbsUser::leaveSongSession);
+        listeningUsers.forEach(NbsUser::leaveSongSession);
         listeningUsers.clear();
     }
 
@@ -121,7 +94,6 @@ public class NbsSongSession {
             stop();
             this.currentSong = Optional.of(song);
             this.currentTick = 0;
-            this.playing = true;
             play();
         }
     }
@@ -134,13 +106,7 @@ public class NbsSongSession {
         return currentSong.isPresent() && song.equals(currentSong.get());
     }
 
-    public boolean hasStarted() {
-        return task.isPresent();
-    }
-
-    private void playNote(@NotNull NbsSongNote note) {
-        getListeningUsers().forEach(user -> user.getBukkitPlayer().ifPresent(player ->
-                NbsSongInstrument.getInstrumentById(note.instrumentId()).ifPresent(instrument ->
-                        player.playSound(location.orElse(player.getLocation()), instrument.getSound(), 1.0f, NbsNotePitch.getPitch(note.key() - 33)))));
+    public void incrementTick() {
+        this.currentTick++;
     }
 }

@@ -25,28 +25,28 @@ public class NbsUser {
     private Optional<NbsSongSession> songSession = Optional.empty();
 
     public void joinSongSession(@NotNull NbsSongSession session) {
-        if (songSession.isPresent()) {
-            leaveSongSession();
-        }
-
-        this.songSession = Optional.of(session);
+        songSession.ifPresent(songSession -> leaveSongSession());
         session.join(this);
+        this.songSession = Optional.of(session);
     }
 
     public void startSongSession(@NotNull NbsSong song) {
         NbsSongSession session = new NbsSongSession(plugin, this, song);
-        joinSongSession(session);
+        session.join(this);
         session.play();
+
+        this.songSession = Optional.of(session);
 
         Bukkit.getPluginManager().callEvent(new NbsSessionStartEvent(this, session, song));
     }
 
     public void leaveSongSession() {
         songSession.ifPresent(session -> {
-            Bukkit.getPluginManager().callEvent(new NbsSessionLeaveEvent(this, session));
             session.leave(this);
+            this.songSession = Optional.empty();
+
+            Bukkit.getPluginManager().callEvent(new NbsSessionLeaveEvent(this, session));
         });
-        this.songSession = Optional.empty();
     }
 
     public Optional<Player> getBukkitPlayer() {
