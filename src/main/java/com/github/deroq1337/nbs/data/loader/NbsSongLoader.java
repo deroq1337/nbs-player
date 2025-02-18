@@ -32,15 +32,16 @@ public class NbsSongLoader {
                 .map(this::loadSong)
                 .toList();
 
-        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).thenApply(v -> futures.stream()
-                        .map(CompletableFuture::join)
-                        .filter(Optional::isPresent)
-                        .map(Optional::get)
-                        .toList())
-                .exceptionally(t -> {
-                    System.err.println("Could not load songs: " + t.getMessage());
-                    return new ArrayList<>();
-                });
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).thenApply(v -> {
+            return futures.stream()
+                    .map(CompletableFuture::join)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .toList();
+        }).exceptionally(t -> {
+                System.err.println("Could not load songs: " + t.getMessage());
+                return new ArrayList<>();
+            });
     }
 
     public @NotNull CompletableFuture<Optional<NbsSong>> loadSong(@NotNull File file) {
@@ -99,12 +100,12 @@ public class NbsSongLoader {
                         int panning = Byte.toUnsignedInt(inputStream.readByte());
                         short pitch = inputStream.readNbsShort();
 
-                        if (NbsSongInstrument.getInstrumentById(instrumentId).isEmpty()) {
-                            continue;
-                        }
-
-                        NbsSongNote note = new NbsSongNote(instrumentId, key, velocity, panning, pitch);
-                        song.addNote(layer, tick, note);
+                        short finalLayer = layer;
+                        short finalTick = tick;
+                        NbsSongInstrument.getInstrumentById(instrumentId).ifPresent(songInstrument -> {
+                            NbsSongNote note = new NbsSongNote(instrumentId, key, velocity, panning, pitch);
+                            song.addNote(finalLayer, finalTick, note);
+                        });
                     }
                 }
 

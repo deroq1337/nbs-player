@@ -7,8 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
-
 public class NbsJoinSubCommand extends NbsSubCommand {
 
     public NbsJoinSubCommand(@NotNull NbsSongPlugin plugin) {
@@ -33,19 +31,11 @@ public class NbsJoinSubCommand extends NbsSubCommand {
             return;
         }
 
-        Optional<NbsUser> optionalTargetUser = plugin.getUserRegistry().getUser(targetPlayer.getUniqueId());
-        if (optionalTargetUser.isEmpty()) {
-            player.sendMessage("§cDieser Spieler ist nicht online");
-            return;
-        }
-
-        NbsUser targetUser = optionalTargetUser.get();
-        if (targetUser.getSongSession().isEmpty()) {
-            player.sendMessage("§cDieser Spieler hat keine Session");
-            return;
-        }
-
-        user.joinSongSession(targetUser.getSongSession().get());
-        player.sendMessage("§aDu bist der Session von " + targetPlayer.getName() + " beigetreten");
+        plugin.getUserRegistry().getUser(targetPlayer.getUniqueId()).ifPresentOrElse(targetUser -> {
+            targetUser.getSongSession().ifPresentOrElse(songSession -> {
+                user.joinSongSession(songSession);
+                player.sendMessage("§aDu bist der Session von " + targetPlayer.getName() + " beigetreten");
+            }, () -> player.sendMessage("§cDieser Spieler hat keine Session"));
+        }, () -> player.sendMessage("§cDieser Spieler ist nicht online"));
     }
 }

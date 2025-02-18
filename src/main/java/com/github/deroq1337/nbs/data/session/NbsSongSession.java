@@ -90,10 +90,10 @@ public class NbsSongSession {
     }
 
     public void setCurrentSong(@NotNull NbsSong song) {
-        if (currentSong.isEmpty() || !song.equals(currentSong.get())) {
+        if (!song.equals(currentSong.orElse(null))) {
             stop();
-            this.currentSong = Optional.of(song);
-            this.currentTick = 0;
+            currentSong = Optional.of(song);
+            currentTick = 0;
             play();
         }
     }

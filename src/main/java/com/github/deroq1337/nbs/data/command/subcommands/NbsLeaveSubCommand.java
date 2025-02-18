@@ -14,12 +14,9 @@ public class NbsLeaveSubCommand extends NbsSubCommand {
 
     @Override
     protected void execute(@NotNull Player player, @NotNull NbsUser user, @NotNull String[] args) {
-        if (user.getSongSession().isEmpty()) {
-            player.sendMessage("§cDu bist in keiner Session");
-            return;
-        }
-
-        user.leaveSongSession();
-        player.sendMessage("§aDu hast die Session verlassen");
+        user.getSongSession().ifPresentOrElse(songSession -> {
+            user.leaveSongSession();
+            player.sendMessage("§aDu hast die Session verlassen");
+        }, () -> player.sendMessage("§cDu bist in keiner Session"));
     }
 }

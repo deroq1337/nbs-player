@@ -31,30 +31,25 @@ public class NbsPlaySubCommand extends NbsSubCommand {
             }
         }
 
-        Optional<NbsSong> optionalSong = plugin.getSongManager().getSongByName(songName.toString());
-        if (optionalSong.isEmpty()) {
-            player.sendMessage("§cDieses Lied wurde nicht gefunden!");
-            return;
-        }
+        plugin.getSongManager().getSongByName(songName.toString()).ifPresentOrElse(song -> {
+            user.getSongSession().ifPresentOrElse(songSession -> {
+                if (!songSession.isOwner(user)) {
+                    player.sendMessage("§cDiese Session gehört dir nicht");
+                    return;
+                }
 
-        Optional<NbsSongSession> optionalSongSession = user.getSongSession();
-        if (optionalSongSession.isEmpty()) {
-            user.startSongSession(optionalSong.get());
-        } else {
-            NbsSongSession songSession = optionalSongSession.get();
-            if (!songSession.isOwner(user)) {
-                player.sendMessage("§cDiese Session gehört dir nicht");
-                return;
-            }
+                if (songSession.isCurrentSong(song)) {
+                    player.sendMessage("§cDieses Lied wird bereits abgespielt");
+                    return;
+                }
 
-            NbsSong song = optionalSong.get();
-            if (songSession.isCurrentSong(song)) {
-                player.sendMessage("§cDieses Lied wird bereits abgespielt");
-                return;
-            }
+                songSession.setCurrentSong(song);
+                player.sendMessage("§aLied wird abgespielt");
+            }, () -> {
+                user.startSongSession(song);
+                player.sendMessage("§aLied wird abgespielt");
+            });
 
-            songSession.setCurrentSong(song);
-        }
-        player.sendMessage("§aLied wird abgespielt");
+        }, () -> player.sendMessage("§cDieses Lied wurde nicht gefunden!"));
     }
 }

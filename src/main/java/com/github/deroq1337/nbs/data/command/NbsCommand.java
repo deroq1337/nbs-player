@@ -47,20 +47,19 @@ public class NbsCommand implements CommandExecutor {
 
         String subCommandName = args[0].toLowerCase();
 
-        Optional<NbsSubCommand> subCommand = Optional.ofNullable(subCommandMap.get(subCommandName));
-        if (subCommand.isEmpty()) {
-            commandSender.sendMessage("§cBefehl wurde nicht gefunden");
-            return true;
-        }
+        Optional.ofNullable(subCommandMap.get(subCommandName)).ifPresentOrElse(subCommand ->{
+            plugin.getUserRegistry().getUser(player.getUniqueId()).ifPresentOrElse(
+                    user -> subCommand.execute(player, user, buildSubCommandArgs(args)),
+                    () -> player.sendMessage("§cEs ist ein Fehler aufgetreten. Versuch zu rejoinen oder kontaktiere einen Administrator.")
+            );
+        }, () -> commandSender.sendMessage("§cBefehl wurde nicht gefunden"));
 
-        Optional<NbsUser> optionalUser = plugin.getUserRegistry().getUser(player.getUniqueId());
-        if (optionalUser.isEmpty()) {
-            player.sendMessage("§cEs ist ein Fehler aufgetreten. Versuch zu rejoinen oder kontaktiere einen Administrator.");
-            return true;
-        }
-
-        String[] subCommandArgs = Arrays.stream(args).skip(1).toArray(String[]::new);
-        subCommand.get().execute(player, optionalUser.get(), subCommandArgs);
         return true;
+    }
+
+    private @NotNull String[] buildSubCommandArgs(@NotNull String[] args) {
+        return Arrays.stream(args)
+                .skip(1)
+                .toArray(String[]::new);
     }
 }
